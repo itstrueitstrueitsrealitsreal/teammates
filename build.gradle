@@ -1,4 +1,3 @@
-
 apply plugin: "war"
 apply plugin: "com.google.cloud.tools.appengine-appyaml"
 
@@ -256,12 +255,6 @@ task createConfigs {
     description "Sets up the project by obtaining necessary files and configurations points."
     group "Setup"
     doLast {
-        if (!project.hasProperty('appId')) {
-            project.ext.set('appId', System.getenv('GOOGLE_CLOUD_PROJECT'))
-        }
-        if (!project.hasProperty('appVersion')) {
-            project.ext.set('appVersion', System.getenv('GAE_VERSION'))
-        }
         def templatesToCopy = [
             "gradle.template.properties",
             "src/main/resources/build.template.properties",
