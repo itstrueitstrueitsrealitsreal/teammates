@@ -126,8 +126,6 @@ public final class Config {
     /** Indicates whether the current server is dev server. */
     public static final boolean IS_DEV_SERVER;
 
-    private static final Logger log = Logger.getLogger();
-
     static {
         Properties properties = new Properties();
         Properties gradleProperties = new Properties();
