@@ -13,13 +13,13 @@ import java.util.Properties;
  */
 public final class Config {
 
-    /** The value of the "app.id" in the deployment environment. */
+    /** The value of the "app.id" in build.gradle file. */
     public static final String APP_ID;
 
     /** The value of the "app.region" in build.properties file. */
     public static final String APP_REGION;
 
-    /** The value of the "app.version" in the deployment environment. */
+    /** The value of the "app.version" in build.gradle file. */
     public static final String APP_VERSION;
 
     /** The value of the "app.frontend.url" in build.properties file. */
@@ -160,11 +160,9 @@ public final class Config {
             try (InputStream devPropStream = FileHelper.getResourceAsStream("build-dev.properties")) {
                 if (devPropStream != null) {
                     devProperties.load(devPropStream);
-                } else {
-                    log.warning("Dev environment detected but failed to load build-dev.properties file.");
                 }
             } catch (IOException e) {
-                log.warning("IOException occurred while loading build-dev.properties: " + e.getMessage());
+                    assert false;
             }
         }
 
