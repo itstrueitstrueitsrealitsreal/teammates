@@ -13,13 +13,13 @@ import java.util.Properties;
  */
 public final class Config {
 
-    /** The value of the "app.id" in build.properties file. */
+    /** The value of the "app.id" in the deployment environment. */
     public static final String APP_ID;
 
     /** The value of the "app.region" in build.properties file. */
     public static final String APP_REGION;
 
-    /** The value of the "app.version" in build.properties file. */
+    /** The value of the "app.version" in the deployment environment. */
     public static final String APP_VERSION;
 
     /** The value of the "app.frontend.url" in build.properties file. */
@@ -149,8 +149,8 @@ public final class Config {
             } catch (IOException e) {
                 log.warning("Dev environment detected but failed to load build-dev.properties file.");
             }
-            APP_ID = getProperty(properties, devProperties, "app.id");
-            APP_VERSION = getProperty(properties, devProperties, "app.version");
+            APP_ID = System.getenv("GOOGLE_CLOUD_PROJECT");
+            APP_VERSION = System.getenv("GAE_VERSION");
         } else {
             APP_ID = appId;
             APP_VERSION = appVersion;
