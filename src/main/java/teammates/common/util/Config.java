@@ -130,66 +130,88 @@ public final class Config {
 
     static {
         Properties properties = new Properties();
+        Properties gradleProperties = new Properties();
+        Properties devProperties = new Properties();
+
+        // Load build.properties
         try (InputStream buildPropStream = FileHelper.getResourceAsStream("build.properties")) {
-            properties.load(buildPropStream);
+            if (buildPropStream != null) {
+                properties.load(buildPropStream);
+            }
         } catch (IOException e) {
             assert false;
         }
 
-        String appVersion = properties.getProperty("app.version");
-        String appId = properties.getProperty("app.id");
+        // Load gradle.properties
+        try (InputStream gradlePropStream = FileHelper.getResourceAsStream("../../gradle.properties")) {
+            if (gradlePropStream != null) {
+                gradleProperties.load(gradlePropStream);
+            }
+        } catch (IOException e) {
+            assert false;
+        }
+
+        // Determine if it's a dev server
+        String appVersion = getProperty(properties, devProperties, gradleProperties, "app.version", "8-0-0");
+        String appId = getProperty(properties, devProperties, gradleProperties, "app.id", "teammates-john");
         IS_DEV_SERVER = isDevServer(appVersion, appId);
 
-        Properties devProperties = new Properties();
         if (IS_DEV_SERVER) {
             try (InputStream devPropStream = FileHelper.getResourceAsStream("build-dev.properties")) {
                 if (devPropStream != null) {
                     devProperties.load(devPropStream);
+                } else {
+                    log.warning("Dev environment detected but failed to load build-dev.properties file.");
                 }
             } catch (IOException e) {
-                log.warning("Dev environment detected but failed to load build-dev.properties file.");
+                log.warning("IOException occurred while loading build-dev.properties: " + e.getMessage());
             }
-            APP_ID = System.getenv("GOOGLE_CLOUD_PROJECT");
-            APP_VERSION = System.getenv("GAE_VERSION");
-        } else {
-            APP_ID = appId;
-            APP_VERSION = appVersion;
         }
 
-        APP_REGION = getProperty(properties, devProperties, "app.region");
-        APP_FRONTEND_URL = getProperty(properties, devProperties, "app.frontend.url", getDefaultFrontEndUrl());
-        CSRF_KEY = getProperty(properties, devProperties, "app.csrf.key");
-        BACKDOOR_KEY = getProperty(properties, devProperties, "app.backdoor.key");
-        PRODUCTION_GCS_BUCKETNAME = getProperty(properties, devProperties, "app.production.gcs.bucketname");
-        POSTGRES_HOST = getProperty(properties, devProperties, "app.postgres.host");
-        POSTGRES_PORT = getProperty(properties, devProperties, "app.postgres.port");
-        POSTGRES_DATABASENAME = getProperty(properties, devProperties, "app.postgres.databasename");
-        POSTGRES_USERNAME = getProperty(properties, devProperties, "app.postgres.username");
-        POSTGRES_PASSWORD = getProperty(properties, devProperties, "app.postgres.password");
-        BACKUP_GCS_BUCKETNAME = getProperty(properties, devProperties, "app.backup.gcs.bucketname");
-        ENCRYPTION_KEY = getProperty(properties, devProperties, "app.encryption.key");
-        AUTH_TYPE = getProperty(properties, devProperties, "app.auth.type");
-        OAUTH2_CLIENT_ID = getProperty(properties, devProperties, "app.oauth2.client.id");
-        OAUTH2_CLIENT_SECRET = getProperty(properties, devProperties, "app.oauth2.client.secret");
-        CAPTCHA_SECRET_KEY = getProperty(properties, devProperties, "app.captcha.secretkey");
+        APP_ID = System.getenv("GOOGLE_CLOUD_PROJECT");
+        APP_VERSION = System.getenv("GAE_VERSION");
+
+        APP_REGION = getProperty(properties, devProperties, gradleProperties, "app.region");
+        APP_FRONTEND_URL = getProperty(properties, devProperties, gradleProperties, "app.frontend"
+                + ".url", getDefaultFrontEndUrl());
+        CSRF_KEY = getProperty(properties, devProperties, gradleProperties, "app.csrf.key");
+        BACKDOOR_KEY = getProperty(properties, devProperties, gradleProperties, "app.backdoor.key");
+        PRODUCTION_GCS_BUCKETNAME = getProperty(properties, devProperties, gradleProperties, "app.production.gcs"
+                + ".bucketname");
+        POSTGRES_HOST = getProperty(properties, devProperties, gradleProperties, "app.postgres.host");
+        POSTGRES_PORT = getProperty(properties, devProperties, gradleProperties, "app.postgres.port");
+        POSTGRES_DATABASENAME = getProperty(properties, devProperties, gradleProperties, "app.postgres"
+                + ".databasename");
+        POSTGRES_USERNAME = getProperty(properties, devProperties, gradleProperties, "app.postgres.username");
+        POSTGRES_PASSWORD = getProperty(properties, devProperties, gradleProperties, "app.postgres.password");
+        BACKUP_GCS_BUCKETNAME = getProperty(properties, devProperties, gradleProperties, "app.backup.gcs"
+                + ".bucketname");
+        ENCRYPTION_KEY = getProperty(properties, devProperties, gradleProperties, "app.encryption.key");
+        AUTH_TYPE = getProperty(properties, devProperties, gradleProperties, "app.auth.type");
+        OAUTH2_CLIENT_ID = getProperty(properties, devProperties, gradleProperties, "app.oauth2.client.id");
+        OAUTH2_CLIENT_SECRET = getProperty(properties, devProperties, gradleProperties, "app.oauth2.client.secret");
+        CAPTCHA_SECRET_KEY = getProperty(properties, devProperties, gradleProperties, "app"
+                + ".captcha.secretkey");
         APP_ADMINS = Collections.unmodifiableList(
-                Arrays.asList(getProperty(properties, devProperties, "app.admins", "").split(",")));
+                Arrays.asList(getProperty(properties, devProperties, gradleProperties, "app.admins", "").split(",")));
         APP_MAINTAINERS = Collections.unmodifiableList(
-                Arrays.asList(getProperty(properties, devProperties, "app.maintainers", "").split(",")));
-        SUPPORT_EMAIL = getProperty(properties, devProperties, "app.crashreport.email");
-        EMAIL_SENDEREMAIL = getProperty(properties, devProperties, "app.email.senderemail");
-        EMAIL_SENDERNAME = getProperty(properties, devProperties, "app.email.sendername");
-        EMAIL_REPLYTO = getProperty(properties, devProperties, "app.email.replyto");
-        EMAIL_SERVICE = getProperty(properties, devProperties, "app.email.service");
-        SENDGRID_APIKEY = getProperty(properties, devProperties, "app.sendgrid.apikey");
-        MAILGUN_APIKEY = getProperty(properties, devProperties, "app.mailgun.apikey");
-        MAILGUN_DOMAINNAME = getProperty(properties, devProperties, "app.mailgun.domainname");
-        MAILJET_APIKEY = getProperty(properties, devProperties, "app.mailjet.apikey");
-        MAILJET_SECRETKEY = getProperty(properties, devProperties, "app.mailjet.secretkey");
-        SEARCH_SERVICE_HOST = getProperty(properties, devProperties, "app.search.service.host");
+                Arrays.asList(getProperty(properties, devProperties, gradleProperties, "app.maintainers", "").split(",")));
+        SUPPORT_EMAIL = getProperty(properties, devProperties, gradleProperties, "app.crashreport"
+                + ".email");
+        EMAIL_SENDEREMAIL = getProperty(properties, devProperties, gradleProperties, "app.email.senderemail");
+        EMAIL_SENDERNAME = getProperty(properties, devProperties, gradleProperties, "app.email.sendername");
+        EMAIL_REPLYTO = getProperty(properties, devProperties, gradleProperties, "app.email.replyto");
+        EMAIL_SERVICE = getProperty(properties, devProperties, gradleProperties, "app.email.service");
+        SENDGRID_APIKEY = getProperty(properties, devProperties, gradleProperties, "app.sendgrid.apikey");
+        MAILGUN_APIKEY = getProperty(properties, devProperties, gradleProperties, "app.mailgun.apikey");
+        MAILGUN_DOMAINNAME = getProperty(properties, devProperties, gradleProperties, "app.mailgun.domainname");
+        MAILJET_APIKEY = getProperty(properties, devProperties, gradleProperties, "app.mailjet.apikey");
+        MAILJET_SECRETKEY = getProperty(properties, devProperties, gradleProperties, "app.mailjet.secretkey");
+        SEARCH_SERVICE_HOST = getProperty(properties, devProperties, gradleProperties, "app.search.service.host");
         ENABLE_DATASTORE_BACKUP = Boolean.parseBoolean(
-                getProperty(properties, devProperties, "app.enable.datastore.backup", "false"));
-        MAINTENANCE = Boolean.parseBoolean(getProperty(properties, devProperties, "app.maintenance", "false"));
+                getProperty(properties, devProperties, gradleProperties, "app.enable.datastore.backup", "false"));
+        MAINTENANCE = Boolean.parseBoolean(getProperty(properties, devProperties, gradleProperties, "app"
+                + ".maintenance", "false"));
 
         // The following properties are not used in production server.
         // So they will only be read from build-dev.properties file.
@@ -203,36 +225,49 @@ public final class Config {
     }
 
     /**
-     * Returns the a default frontend URL if it is not set in property file(s).
+     * Returns the default frontend URL if it is not set in property file(s).
      */
     static String getDefaultFrontEndUrl() {
         return IS_DEV_SERVER ? "http://localhost:" + getPort() : "https://" + APP_ID + ".appspot.com";
     }
 
     /**
-     * Returns the property value based on running environment.
+     * Returns the property value based on the running environment.
      *
-     * <p>If it is in dev server, it will return the value from build-dev.properties file.
-     * If the respective key does not exist in build-dev.properties file, or it is in production server,
-     * it will return the value from build.properties file instead.
+     * <p>If it is in the dev server, it will return the value from build-dev.properties file.
      *
-     * <p>If still no key found in build.properties file, the specified default value will be returned.
+     * <p>If the respective key does not exist in build-dev.properties file, or it is in the
+     * production server, it will return the value from build.properties file instead.
+     *
+     * <p>If still no key is found in build.properties file, it will look for the key in the
+     * gradle.properties file.
+     *
+     * <p>If no key is found, the specified default value will be returned.
      */
-    private static String getProperty(Properties properties, Properties devProperties, String key, String defaultValue) {
+    private static String getProperty(Properties properties, Properties gradleProperties,
+                                      Properties devProperties, String key, String defaultValue) {
         if (IS_DEV_SERVER) {
             String val = devProperties.getProperty(key);
             if (val != null) {
                 return val;
             }
         }
-        return defaultValue == null ? properties.getProperty(key) : properties.getProperty(key, defaultValue);
+
+        String val = properties.getProperty(key);
+        if (val != null) {
+            return val;
+        }
+
+        val = gradleProperties.getProperty(key);
+        return val != null ? val : defaultValue;
     }
 
     /**
-     * Returns the property value based on running environment. null is returned when no match values are found.
+     * Returns the property value based on the running environment. If no matching value is found, null is returned.
      */
-    private static String getProperty(Properties properties, Properties devProperties, String key) {
-        return getProperty(properties, devProperties, key, null);
+    private static String getProperty(Properties properties, Properties gradleProperties,
+                                      Properties devProperties, String key) {
+        return getProperty(properties, gradleProperties, devProperties, key, null);
     }
 
     /**
