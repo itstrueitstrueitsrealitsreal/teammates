@@ -124,15 +124,13 @@
   <ngb-alert type="danger" [dismissible]="false" *ngIf="hasSubmitAttempt && arf.invalid" class="error-box">
     <strong>There was a problem with your submission.</strong> Please check and fix the errors above and submit again.
   </ngb-alert>
-  <ngb-alert type="danger" [dismissible]="false" *ngIf="serverErrorMessage" class="mb-3 error-box">
-    <strong>Error submitting request:</strong> {{ serverErrorMessage }}
+  <ngb-alert type="danger" [dismissible]="false" *ngIf="serverErrorMessage" class="error-box">
+    <strong>Error submitting request:</strong> {{serverErrorMessage}}
   </ngb-alert>
-  <form>
-    <button type="submit" class="btn btn-primary me-3" id="submit-button" [disabled]="!canSubmit">
-      {{ isLoading ? "Submitting..." : "Submit" }}
-    </button>
-    <a [routerLink]="'/web/front/home'" tmRouterLink="/web/front/home" class="btn btn-danger" id="cancel-button">
-      Cancel
-    </a>
-  </form>
+  <button type="submit" class="btn btn-primary me-3" id="submit-button" [disabled]="!canSubmit" >
+    {{isLoading ? "Submitting..." : "Submit"}}
+  </button>
+  <a tmRouterLink="/web/front/home" class="btn btn-danger" id="cancel-button">
+    Cancel
+  </a>
 </form>
