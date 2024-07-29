@@ -25,7 +25,7 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
   <p
     aria-hidden="true"
   >
-     Questions marked with an asterisk 
+     Questions marked with an asterisk
     <span
       class="red-font"
     >
@@ -44,12 +44,12 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         for="name"
         id="name-label"
       >
-         Full Name 
+         Full Name
       </label>
       <p
         class="help-block"
       >
-         This is the name that will be shown to your students. You may include salutation (Dr. Prof. etc.) 
+         This is the name that will be shown to your students. You may include salutation (Dr. Prof. etc.)
       </p>
       <input
         aria-invalid="true"
@@ -65,7 +65,7 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         role="alert"
         tabindex="0"
       >
-         Please enter your name. 
+         Please enter your name.
       </div>
     </div>
     <br />
@@ -77,12 +77,12 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         for="institution"
         id="institution-label"
       >
-         University/school/institution 
+         University/school/institution
       </label>
       <p
         class="help-block"
       >
-         Please give full name of the university/institution. 
+         Please give full name of the university/institution.
       </p>
       <input
         aria-invalid="true"
@@ -98,7 +98,7 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         role="alert"
         tabindex="0"
       >
-         Please enter your institution name. 
+         Please enter your institution name.
       </div>
     </div>
     <br />
@@ -110,12 +110,12 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         for="country"
         id="country-label"
       >
-         Country 
+         Country
       </label>
       <p
         class="help-block"
       >
-         Which country is your university/institution based in? 
+         Which country is your university/institution based in?
       </p>
       <input
         aria-invalid="true"
@@ -131,7 +131,7 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         role="alert"
         tabindex="0"
       >
-         Please enter your institution's country. 
+         Please enter your institution's country.
       </div>
     </div>
     <br />
@@ -143,16 +143,16 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         for="email"
         id="email-label"
       >
-         Official email address 
+         Official email address
       </label>
       <p
         class="help-block"
       >
-         Please use the email address 
+         Please use the email address
         <b>
           given to you by your school/university
         </b>
-         (not your personal Gmail/Hotmail address). Note that this email address will be visible to the students you enroll in TEAMMATES. 
+         (not your personal Gmail/Hotmail address). Note that this email address will be visible to the students you enroll in TEAMMATES.
       </p>
       <input
         aria-invalid="true"
@@ -168,7 +168,7 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         role="alert"
         tabindex="0"
       >
-         Please enter your email address. 
+         Please enter your email address.
       </div>
     </div>
     <br />
@@ -180,7 +180,7 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
         for="comments"
         id="comments-label"
       >
-         Any other comments/queries 
+         Any other comments/queries
       </label>
       <textarea
         aria-invalid="false"
@@ -194,14 +194,14 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
       id="submit-button"
       type="submit"
     >
-       Submit 
+       Submit
     </button>
     <a
       class="btn btn-danger"
       id="cancel-button"
       tmrouterlink="/web/front/home"
     >
-       Cancel 
+       Cancel
     </a>
   </form>
 </tm-instructor-request-form>
