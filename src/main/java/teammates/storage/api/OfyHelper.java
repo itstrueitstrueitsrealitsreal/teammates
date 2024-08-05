@@ -30,9 +30,18 @@ public class OfyHelper implements ServletContextListener {
 
     private static void initializeDatastore() {
         DatastoreOptions.Builder builder = DatastoreOptions.newBuilder().setProjectId(Config.APP_ID);
+<<<<<<< HEAD
         if (Config.IS_DEV_SERVER) {
             builder.setHost("http://localhost:" + Config.APP_LOCALDATASTORE_PORT);
             builder.setCredentials(NoCredentials.getInstance());
+=======
+        if (Config.isDevServer()) {
+            String host = "http://localhost:" + Config.APP_LOCALDATASTORE_PORT;
+            if (Config.isDocker()) {
+                host = host.replace("localhost", System.getenv("DOCKER_GATEWAY_HOST"));
+            }
+            builder.setHost(host);
+>>>>>>> dd818607d3b94126b6748631487bedc1a5afaa7f
         }
         ObjectifyService.init(new ObjectifyFactory(builder.build().getService()));
     }
