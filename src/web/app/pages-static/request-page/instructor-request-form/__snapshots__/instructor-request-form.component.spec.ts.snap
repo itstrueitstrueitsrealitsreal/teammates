@@ -190,12 +190,19 @@ exports[`InstructorRequestFormComponent should render correctly 1`] = `
     </div>
     <br />
     <button
-      class="btn btn-primary"
+      class="btn btn-primary me-3"
       id="submit-button"
       type="submit"
     >
        Submit 
     </button>
+    <a
+      class="btn btn-danger"
+      id="cancel-button"
+      tmrouterlink="/web/front/home"
+    >
+       Cancel 
+    </a>
   </form>
 </tm-instructor-request-form>
 `;
