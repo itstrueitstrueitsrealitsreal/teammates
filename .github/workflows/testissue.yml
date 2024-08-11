@@ -1,12 +1,6 @@
 name: Close Stale Issues - Test Version
 
 on:
-  push:
-    branches:
-      - yml  # Branch to trigger the workflow
-  pull_request:
-    branches:
-      - yml
   schedule:
     - cron: '* * * * *'  # Runs every minute for testing
 
@@ -54,7 +48,7 @@ jobs:
               if (diffMinutes >= issueAgeLimit) {
                 const lastComment = comments.data.length > 0 ? comments.data[comments.data.length - 1] : null;
 
-                if (lastComment && lastComment.body.includes("This issue has been inactive for 5 minutes")) {
+                if (lastComment && lastComment.user.login === botUsername && lastComment.body.includes("This issue has been inactive for 3 minutes")) {
                   if (diffMinutes - issueAgeLimit >= warningWaitTime) {
                     await github.rest.issues.createComment({
                       owner: context.repo.owner,
