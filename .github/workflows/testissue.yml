@@ -1,12 +1,6 @@
 name: Manage Stale Issues - Test Version
 
 on:
-  push:
-    branches:
-      - yml  # Trigger on push to the 'yml' branch
-  pull_request:
-    branches:
-      - yml  # Trigger on PRs to the 'yml' branch
   schedule:
     - cron: '* * * * *'  # Runs every minute for testing
 
