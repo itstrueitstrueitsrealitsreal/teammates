@@ -3,13 +3,12 @@ name: Close Stale Issues - Test Version
 on:
   push:
     branches:
-      - yml # Replace with your specific branch name
+      - yml  # Branch to trigger the workflow
   pull_request:
     branches:
       - yml
   schedule:
-    - cron: '* * * * *'
-
+    - cron: '* * * * *'  # Runs every minute for testing
 
 jobs:
   check_stale_issues:
@@ -26,18 +25,23 @@ jobs:
             const warningWaitTime = 2;  // 2 minutes wait time after warning for testing
             const botUsername = 'github-actions[bot]';
 
-            const issues = await github.paginate('GET /repos/{owner}/{repo}/issues', {
+            const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
               per_page: 100,
             });
 
-            for (const issue of issues) {
-              const comments = await github.paginate(issue.comments_url);
+            for (const issue of issues.data) {
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+              });
+
               let lastRealActivityDate = new Date(issue.created_at);
 
-              for (const comment of comments) {
+              for (const comment of comments.data) {
                 if (comment.user.login !== botUsername) {
                   lastRealActivityDate = new Date(comment.updated_at);
                 }
@@ -48,18 +52,18 @@ jobs:
               const diffMinutes = Math.ceil(diffTime / (1000 * 60));
 
               if (diffMinutes >= issueAgeLimit) {
-                const lastComment = comments.length > 0 ? comments[comments.length - 1] : null;
+                const lastComment = comments.data.length > 0 ? comments.data[comments.data.length - 1] : null;
 
                 if (lastComment && lastComment.body.includes("This issue has been inactive for 5 minutes")) {
                   if (diffMinutes - issueAgeLimit >= warningWaitTime) {
-                    await github.issues.createComment({
+                    await github.rest.issues.createComment({
                       owner: context.repo.owner,
                       repo: context.repo.repo,
                       issue_number: issue.number,
                       body: 'This issue is being closed due to inactivity.',
                     });
 
-                    await github.issues.update({
+                    await github.rest.issues.update({
                       owner: context.repo.owner,
                       repo: context.repo.repo,
                       issue_number: issue.number,
@@ -67,11 +71,11 @@ jobs:
                     });
                   }
                 } else {
-                  await github.issues.createComment({
+                  await github.rest.issues.createComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: issue.number,
-                    body: 'This issue has been inactive for 5 minutes. It will be closed in 3 minutes if no further activity occurs.',
+                    body: 'This issue has been inactive for 3 minutes. It will be closed in 2 minutes if no further activity occurs.',
                   });
                 }
               }
