@@ -21,7 +21,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const issueAgeLimit = 3;
+            const issueAgeLimit = 3;  # 3 minutes for testing
             const botUsername = 'github-actions[bot]';
 
             const issues = await github.rest.issues.listForRepo({
@@ -54,7 +54,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
-                  body: 'This issue has been inactive for a long time. It will be closed shortly if no further activity occurs. Feel free to reopen or create a new pull request if there are any updates.',
+                  body: 'This issue has been inactive for a long time. It will be closed shortly if no further activity occurs.',
                 });
               }
             }
@@ -63,13 +63,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: label_stale_issues
     steps:
-      - name: Close labeled stale issues
+      - name: Close labeled stale issues with additional comment
         uses: actions/github-script@v6
         with:
           script: |
-            const warningWaitTime = 2;
+            const warningWaitTime = 2;  # 2 minutes wait time after warning
             const botUsername = 'github-actions[bot]';
-            const warningMessage = 'This issue has been inactive for a long time. It will be closed shortly if no further activity occurs. Feel free to reopen or create a new pull request if there are any updates.';
+            const warningMessage = 'This issue has been inactive for a long time. It will be closed shortly if no further activity occurs.';
 
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -94,6 +94,13 @@ jobs:
                   const diffMinutes = Math.ceil(diffTime / (1000 * 60));
 
                   if (diffMinutes >= warningWaitTime) {
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issue.number,
+                      body: 'This issue is now being closed due to inactivity. Feel free to reopen or create a new issue if you have further updates or need more discussion.',
+                    });
+
                     await github.rest.issues.update({
                       owner: context.repo.owner,
                       repo: context.repo.repo,
