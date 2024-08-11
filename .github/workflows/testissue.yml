@@ -1,8 +1,15 @@
 name: Close Stale Issues - Test Version
 
 on:
+  push:
+    branches:
+      - yml # Replace with your specific branch name
+  pull_request:
+    branches:
+      - yml
   schedule:
-    - cron: '* * * * *'  # Runs every minute for testing
+    - cron: '* * * * *'
+
 
 jobs:
   check_stale_issues:
