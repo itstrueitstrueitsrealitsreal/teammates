@@ -1,107 +1,29 @@
-name: Manage Stale Issues - Test Version
+name: Manage Stale Issues - Testing Version
 
 on:
   schedule:
-    - cron: '* * * * *'  # Runs every minute for testing
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
 
 jobs:
-  label_stale_issues:
+  mark_and_close_stale_issues:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Comment on stale issues
-        uses: actions/github-script@v6
+      - name: Close Stale Issues
+        uses: actions/stale@v9.0.0
         with:
-          script: |
-            const issueAgeLimit = 3;  // 3 minutes for testing
-            const botUsername = 'github-actions[bot]';
-
-            const issues = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              per_page: 100,
-            });
-
-            for (const issue of issues.data) {
-              const comments = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-              });
-
-              let lastRealActivityDate = new Date(issue.created_at);
-              for (const comment of comments.data) {
-                if (comment.user.login !== botUsername) {
-                  lastRealActivityDate = new Date(comment.updated_at);
-                }
-              }
-
-              const currentDate = new Date();
-              const diffTime = Math.abs(currentDate - lastRealActivityDate);
-              const diffMinutes = Math.ceil(diffTime / (1000 * 60));
-
-              if (diffMinutes >= issueAgeLimit && (!comments.data.length || comments.data[comments.data.length - 1].user.login !== botUsername)) {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  body: `This issue has been inactive for a long time. It will be closed shortly if no further activity occurs. Feel free to reopen or create a new pull request if there are any updates.`,
-                });
-              }
-            }
-
-  close_stale_issues:
-    runs-on: ubuntu-latest
-    needs: label_stale_issues
-    steps:
-      - name: Close labeled stale issues
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const warningWaitTime = 2;  // 2 minutes wait time after warning
-            const botUsername = 'github-actions[bot]';
-            const warningMessage = `This issue has been inactive for a long time. It will be closed shortly if no further activity occurs. Feel free to reopen or create a new pull request if there are any updates.`;
-
-            const issues = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              per_page: 100,
-            });
-
-            for (const issue of issues.data) {
-              const comments = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-              });
-
-              if (comments.data.length) {
-                const lastComment = comments.data[comments.data.length - 1];
-                if (lastComment.user.login === botUsername && lastComment.body === warningMessage) {
-                  const lastCommentDate = new Date(lastComment.updated_at);
-                  const currentDate = new Date();
-                  const diffTime = Math.abs(currentDate - lastCommentDate);
-                  const diffMinutes = Math.ceil(diffTime / (1000 * 60));
-
-                  if (diffMinutes >= warningWaitTime) {
-                    await github.rest.issues.createComment({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: issue.number,
-                      body: `This issue is now being closed due to inactivity. Feel free to reopen it or create a new issue if you have further updates or need more discussion.`,
-                    });
-
-                    await github.rest.issues.update({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: issue.number,
-                      state: 'closed',
-                    });
-                  }
-                }
-              }
-            }
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 1
+          days-before-close: 1
+          stale-issue-message: 'This issue has been automatically marked as stale because it has 
+          not had recent activity. It will be closed if no further activity occurs. Feel free to 
+          reopen it or create a new issue if you wish to continue contributing.'
+          stale-pr-message: 'This pull request has been automatically marked as stale because it 
+          has not had recent activity. It will be closed if no further activity occurs. Feel free
+           to reopen it or create a new pull request if you wish to continue contributing.'
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+          exempt-issue-labels: 'p.Urgent,s.OnHold'
+          exempt-pr-labels: 'p.Urgent,s.DoNotMerge,s.FinalReview,s.OnHold'
+          operations-per-run: 30

@@ -1,73 +1,27 @@
-name: Close Stale Issues
+name: Manage Stale Issues
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs at the end of every day
+    - cron: '0 0 * * *'
 
 jobs:
-  check_stale_issues:
+  mark_and_close_stale_issues:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Close stale issues
-        uses: actions/github-script@v6
+      - name: Close Stale Issues
+        uses: actions/stale@v9.0.0
         with:
-          script: |
-            const issueAgeLimit = 730;
-            const warningWaitTime = 3;
-            const botUsername = 'github-actions[bot]';
-
-            const issues = await github.paginate('GET /repos/{owner}/{repo}/issues', {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              per_page: 100,
-            });
-
-            for (const issue of issues) {
-              const comments = await github.paginate(issue.comments_url);
-              let lastRealActivityDate = new Date(issue.created_at);
-
-              // Iterate over comments to find the last non-bot activity
-              for (const comment of comments) {
-                if (comment.user.login !== botUsername) {
-                  lastRealActivityDate = new Date(comment.updated_at);
-                }
-              }
-
-              const currentDate = new Date();
-              const diffTime = Math.abs(currentDate - lastRealActivityDate);
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-              if (diffDays >= issueAgeLimit) {
-                const lastComment = comments.length > 0 ? comments[comments.length - 1] : null;
-
-                if (lastComment && lastComment.body.includes("This issue has been inactive for 2 years")) {
-                  if (diffDays - issueAgeLimit >= warningWaitTime) {
-                    await github.issues.createComment({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: issue.number,
-                      body: 'This issue is being closed due to inactivity. Feel free to reopen it
-            to continue the discussion if necessary.'
-                    });
-
-                    await github.issues.update({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: issue.number,
-                      state: 'closed',
-                    });
-                  }
-                } else {
-                  await github.issues.createComment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issue.number,
-                    body: 'This issue has been inactive for a long time. It will be closed in 3 days if no further activity occurs.',
-                  });
-                }
-              }
-            }
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 60
+          days-before-close: 7
+          stale-issue-message: 'This issue has been automatically marked as stale because it has 
+          not had recent activity. It will be closed if no further activity occurs. Feel free to 
+          reopen it or create a new issue if you wish to continue contributing.'
+          stale-pr-message: 'This pull request has been automatically marked as stale because it 
+          has not had recent activity. It will be closed if no further activity occurs. Feel free
+           to reopen it or create a new pull request if you wish to continue contributing.'
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+          exempt-issue-labels: 'p.Urgent,s.OnHold'
+          exempt-pr-labels: 'p.Urgent,s.DoNotMerge,s.FinalReview,s.OnHold'
+          operations-per-run: 30
