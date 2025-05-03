@@ -36,6 +36,9 @@ public class AccountRequestSearchManager extends SearchManager<AccountRequest> {
 
     @Override
     AccountRequest getEntityFromDocument(SolrDocument document) {
+        System.out.println("Document: " + document.toString());
+        System.out.println(document.toString());
+        System.out.println(document.getFieldValue("id"));
         UUID id = UUID.fromString((String) document.getFieldValue("id"));
         return accountRequestsDb.getAccountRequest(id);
     }
